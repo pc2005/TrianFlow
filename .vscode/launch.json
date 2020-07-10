@@ -1,0 +1,24 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Test",
+            "type": "python",
+            "request": "launch",
+            "program": "test.py",
+            "args": [
+                "--config_file",
+                "./config/kitti.yaml",
+                "--gpu","0",
+                "--mode","depth",
+                "--task","demo",
+                "--image_path","./data/demo/vapa_002c.png",
+                "--pretrained_model","./models/kitti_depth_pretrained.pth",
+                "--result_dir","./data/demo"],
+            "console": "integratedTerminal"
+        }
+    ]
+}
