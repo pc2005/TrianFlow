@@ -1,0 +1,1 @@
+ffmpeg -r 25 -pattern_type glob -i './results/%08d.png' -q:v 0 -codec:v h264_nvenc 'pred.mp4'
