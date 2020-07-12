@@ -13,6 +13,9 @@ import cv2
 import numpy as np
 import yaml
 
+import time
+import glob
+
 def test_kitti_2012(cfg, model, gt_flows, noc_masks):
     dataset = KITTI_2012(cfg.gt_2012_dir)
     flow_list = []
@@ -187,6 +190,7 @@ def test_single_image(img_path, model, training_hw, save_dir='./'):
     h, w = img.shape[0:2]
     img_resized = cv2.resize(img, (training_hw[1], training_hw[0]))
     img_t = torch.from_numpy(np.transpose(img_resized, [2,0,1])).float().cuda().unsqueeze(0) / 255.0
+
     disp = model.infer_depth(img_t)
     disp = np.transpose(disp[0].cpu().detach().numpy(), [1,2,0])
     disp_resized = cv2.resize(disp, (w,h))
@@ -195,6 +199,40 @@ def test_single_image(img_path, model, training_hw, save_dir='./'):
     visualizer = Visualizer_debug(dump_dir=save_dir)
     visualizer.save_disp_color_img(disp_resized, name='demo')
     print('Depth prediction saved in ' + save_dir)
+
+def test_image_sequence(img_seq_path, model, training_hw, save_dir='./results'):
+    # make sure output directory exist
+    if not os.path.exists(save_dir):
+        os.mkdir(save_dir)
+
+    # get input URLs for images
+    seq_frame_paths = sorted(glob.glob(img_seq_path+'*.png'))
+    no_of_frames = len(seq_frame_paths)
+
+    for frame_path in seq_frame_paths:    
+        # load frame
+        frame_name = os.path.splitext(os.path.basename(frame_path))[0]
+        img = cv2.imread(frame_path)
+        
+        # crop roi
+        img = img[0:560, :]
+        h, w = img.shape[0:2]
+        img_resized = cv2.resize(img, (training_hw[1], training_hw[0]))
+
+        start_time = time.time()
+        img_t = torch.from_numpy(np.transpose(img_resized, [2,0,1])).float().cuda().unsqueeze(0) / 255.0
+        disp = model.infer_depth(img_t)
+        disp = np.transpose(disp[0].cpu().detach().numpy(), [1,2,0])
+        disp_resized = cv2.resize(disp, (w,h))
+        depth = 1.0 / (1e-6 + disp_resized)
+
+        print("Frame: %s | Runtime: %.2f"%(frame_name, time.time()-start_time))
+
+        visualizer = Visualizer_debug(dump_dir=save_dir)
+        visualizer.save_disp_color_img(disp_resized, name=frame_name)
+
+    print('[I] Job done.')
+
 
 
 if __name__ == '__main__':
@@ -207,6 +245,7 @@ if __name__ == '__main__':
     arg_parser.add_argument('--mode', type=str, default='depth', help='mode for testing.')
     arg_parser.add_argument('--task', type=str, default='kitti_depth', help='To test on which task, kitti_depth or kitti_flow or nyuv2 or demo')
     arg_parser.add_argument('--image_path', type=str, default=None, help='Set this only when task==demo. Depth demo for single image.')
+    arg_parser.add_argument('--image_seq_path', type=str, default=None, help='Set this only when task==demo. Depth demo for image sequence.')
     arg_parser.add_argument('--pretrained_model', type=str, default=None, help='directory for loading flow pretrained models')
     arg_parser.add_argument('--result_dir', type=str, default=None, help='directory for saving predictions')
 
@@ -257,5 +296,6 @@ if __name__ == '__main__':
         test_images, test_gt_depths = load_nyu_test_data(cfg_new.nyu_test_dir)
         depth_res = test_nyu(cfg_new, model, test_images, test_gt_depths)
     elif args.task == 'demo':
-        test_single_image(args.image_path, model, training_hw=cfg['img_hw'], save_dir=args.result_dir)
+        # test_single_image(args.image_path, model, training_hw=cfg['img_hw'], save_dir=args.result_dir)
+        test_image_sequence(args.image_seq_path, model, training_hw=cfg['img_hw'], save_dir='./results')
 
