@@ -5,19 +5,70 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Test",
+            "name": "Test VO",
+            "type": "python",
+            "request": "launch",
+            "program": "infer_vo.py",
+            "args": [
+                "--config_file",
+                "./config/odo.yaml",
+                "--gpu",
+                "0",
+                "--traj_save_dir_txt",
+                "./data/traj",
+                "--sequences_root_dir",
+                "/media/pc2005/WD_BLACK/data/kitti/data_scene_flow/training",
+                "--sequence",
+                "flow_noc",
+                "--pretrained_model",
+                "./models/kitti_odo.pth",
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Test flow",
             "type": "python",
             "request": "launch",
             "program": "test.py",
             "args": [
                 "--config_file",
                 "./config/kitti.yaml",
-                "--gpu","0",
-                "--mode","depth",
-                "--task","demo",
-                "--image_path","./data/demo/vapa_002c.png",
-                "--pretrained_model","./models/kitti_depth_pretrained.pth",
-                "--result_dir","./data/demo"],
+                "--gpu",
+                "0",
+                "--mode",
+                "flow_3stage",
+                "--task",
+                "kitti_flow",
+                "--image_path",
+                "./data/demo/vapa_003c.png",
+                "--pretrained_model",
+                "./models/kitti_depth_pretrained.pth",
+                "--result_dir",
+                "./data/demo"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Test depth",
+            "type": "python",
+            "request": "launch",
+            "program": "test.py",
+            "args": [
+                "--config_file",
+                "./config/kitti.yaml",
+                "--gpu",
+                "0",
+                "--mode",
+                "depth",
+                "--task",
+                "demo",
+                "--image_path",
+                "./data/demo/00005676c.png",
+                "--pretrained_model",
+                "./models/kitti_depth_pretrained.pth",
+                "--result_dir",
+                "./data/demo"
+            ],
             "console": "integratedTerminal"
         }
     ]
