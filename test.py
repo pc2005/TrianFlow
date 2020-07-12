@@ -226,7 +226,7 @@ def test_image_sequence(img_seq_path, model, training_hw, save_dir='./results'):
         disp_resized = cv2.resize(disp, (w,h))
         depth = 1.0 / (1e-6 + disp_resized)
 
-        print("Frame: %s | Runtime: %.2f"%(frame_name, time.time()-start_time))
+        print("Frame: %s | Runtime: %.4f"%(frame_name, time.time()-start_time))
 
         visualizer = Visualizer_debug(dump_dir=save_dir)
         visualizer.save_disp_color_img(disp_resized, name=frame_name)
