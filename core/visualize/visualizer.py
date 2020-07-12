@@ -113,7 +113,7 @@ class Visualizer_debug():
         colormapped_im = (mapper.to_rgba(disp)[:,:,:3] * 255).astype(np.uint8)
         im = pil.fromarray(colormapped_im)
         
-        name_dest_im = os.path.join(self.dump_dir, name + '_depth.jpg')
+        name_dest_im = os.path.join(self.dump_dir, name + '.png') #'_depth.jpg')
         im.save(name_dest_im)
 
 
